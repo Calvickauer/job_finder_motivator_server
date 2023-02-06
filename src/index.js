@@ -3,7 +3,11 @@ const dotenv = require("dotenv");
 const express = require("express");
 const helmet = require("helmet");
 const nocache = require("nocache");
+const {
+  validateAccessToken,
+} = require("./middleware/auth0.middleware");
 const { messagesRouter } = require("./messages/messages.router");
+const { exampleRouter } = require("./controllers/example");
 const { errorHandler } = require("./middleware/error.middleware");
 const { notFoundHandler } = require("./middleware/not-found.middleware");
 
@@ -58,7 +62,9 @@ app.use(
 );
 
 app.use("/api", apiRouter);
+app.use("/example", exampleRouter);
 apiRouter.use("/messages", messagesRouter);
+
 
 app.use(errorHandler);
 app.use(notFoundHandler);
