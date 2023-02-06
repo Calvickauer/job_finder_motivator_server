@@ -1,8 +1,16 @@
 const express = require('express');
 const router = express.Router();
-
+const {
+    checkRequiredPermissions,
+    validateAccessToken,
+} = require("../middleware/auth0.middleware.js");
+const { Permissions } = require("../security/permissions.js");
 const ctrls = require('../controllers');
 
+router.post('/seed', 
+    validateAccessToken,
+    checkRequiredPermissions([Permissions.AdminWrite]),
+    ctrls.user.seed);
 // router.post('/register', ctrls.user.register);
 // router.post('/login', ctrls.user.login);
 router.get('/test', ctrls.user.test);
