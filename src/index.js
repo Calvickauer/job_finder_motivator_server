@@ -7,11 +7,8 @@ const {
   validateAccessToken,
 } = require("./middleware/auth0.middleware");
 const { messagesRouter } = require("./messages/messages.router");
-<<<<<<< HEAD
-const { exampleRouter } = require("./controllers/example");
-=======
+
 const routes = require('./routes');
->>>>>>> 369beec586e28617a1c6285faf45b373cec86812
 const { errorHandler } = require("./middleware/error.middleware");
 const { notFoundHandler } = require("./middleware/not-found.middleware");
 
