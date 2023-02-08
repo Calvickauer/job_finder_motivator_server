@@ -9,7 +9,7 @@ const ctrls = require('../controllers');
 
 router.post('/seed', 
     validateAccessToken,
-    checkRequiredPermissions([Permissions.AdminWrite]),
+    // checkRequiredPermissions([Permissions.AdminWrite]),
     ctrls.user.seed);
 // router.post('/register', ctrls.user.register);
 // router.post('/login', ctrls.user.login);
