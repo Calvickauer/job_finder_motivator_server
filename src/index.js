@@ -14,6 +14,11 @@ const { notFoundHandler } = require("./middleware/not-found.middleware");
 
 dotenv.config();
 
+//Database setup
+const MONGO_CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING;
+mongoose.connect(MONGO_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+
 if (!(process.env.PORT && process.env.CLIENT_ORIGIN_URL)) {
   throw new Error(
     "Missing required environment variables. Check docs for more info."
