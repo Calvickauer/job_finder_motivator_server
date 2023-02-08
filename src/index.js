@@ -49,6 +49,11 @@ app.use((req, res, next) => {
 });
 app.use(nocache());
 
+// app.use((req,res,next) => {
+//   console.log({req});
+//   next();
+// });
+
 app.use(
   cors({
     origin: CLIENT_ORIGIN_URL,

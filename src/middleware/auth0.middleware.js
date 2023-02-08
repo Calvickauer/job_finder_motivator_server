@@ -8,12 +8,13 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const validateAccessToken = auth({
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
   audience: process.env.AUTH0_AUDIENCE,
+  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}/`,
 });
 
 const checkRequiredPermissions = (requiredPermissions) => {
   return (req, res, next) => {
+    // console.log({payload});
     const permissionCheck = claimCheck((payload) => {
       const permissions = payload.permissions || [];
 
@@ -31,6 +32,8 @@ const checkRequiredPermissions = (requiredPermissions) => {
     permissionCheck(req, res, next);
   };
 };
+
+
 
 module.exports = {
   validateAccessToken,
