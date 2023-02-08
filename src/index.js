@@ -3,16 +3,18 @@ const dotenv = require("dotenv");
 const express = require("express");
 const helmet = require("helmet");
 const nocache = require("nocache");
-const {
-  validateAccessToken,
-} = require("./middleware/auth0.middleware");
 const { messagesRouter } = require("./messages/messages.router");
-
 const routes = require('./routes');
+const mongoose = require("mongoose")
 const { errorHandler } = require("./middleware/error.middleware");
 const { notFoundHandler } = require("./middleware/not-found.middleware");
 
 dotenv.config();
+
+// Database Set Up
+const MONGO_CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING;
+mongoose.connect(MONGO_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
 
 if (!(process.env.PORT && process.env.CLIENT_ORIGIN_URL)) {
   throw new Error(
@@ -20,11 +22,14 @@ if (!(process.env.PORT && process.env.CLIENT_ORIGIN_URL)) {
   );
 }
 
+
 const PORT = parseInt(process.env.PORT, 10);
 const CLIENT_ORIGIN_URL = process.env.CLIENT_ORIGIN_URL;
 
 const app = express();
 const apiRouter = express.Router();
+
+
 
 app.use(express.json());
 app.set("json spaces", 2);
@@ -53,6 +58,11 @@ app.use((req, res, next) => {
 });
 app.use(nocache());
 
+// app.use((req,res,next) => {
+//   console.log({req});
+//   next();
+// });
+
 app.use(
   cors({
     origin: CLIENT_ORIGIN_URL,
@@ -66,10 +76,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", apiRouter);
-app.use("/example", exampleRouter);
 apiRouter.use("/messages", messagesRouter);
 apiRouter.use("/user", routes.user);
-
 
 app.use(errorHandler);
 app.use(notFoundHandler);
@@ -77,3 +85,4 @@ app.use(notFoundHandler);
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
+
