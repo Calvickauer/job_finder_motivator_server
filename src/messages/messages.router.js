@@ -19,6 +19,7 @@ messagesRouter.get("/public", (req, res) => {
 });
 
 messagesRouter.get("/protected", validateAccessToken, (req, res) => {
+  console.log("in protected message router")
   const message = getProtectedMessage();
 
   res.status(200).json(message);
@@ -29,6 +30,7 @@ messagesRouter.get(
   validateAccessToken,
   checkRequiredPermissions([AdminMessagesPermissions.Read]),
   (req, res) => {
+    console.log("in admin message router")
     const message = getAdminMessage();
 
     res.status(200).json(message);
