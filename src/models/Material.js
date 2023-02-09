@@ -2,14 +2,6 @@ const { Schema } = require("mongoose");
 
 const mongoose = require('mongoose');
 
-const commentSchema = new mongoose.Schema({
-    post_time: {type: Date},
-    poster: {type: Schema.Types.ObjectId, ref: 'User'},
-    content: {type: String},
-    likes: {type: Number},
-    dislikes: {type: Number},
-})
-
 const materialSchema = new mongoose.Schema({
     //_id: automatically generated
     schema_v: {type: Number, default: 1},
@@ -17,7 +9,7 @@ const materialSchema = new mongoose.Schema({
     content: {type: String},
     likes: {type: Number},
     dislikes: {type: Number},
-    comments: [{type: commentSchema}],
+    comments: [{type: String}],
 });
 
 const Material = mongoose.model('Material', materialSchema);
