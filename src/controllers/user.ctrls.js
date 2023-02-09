@@ -14,7 +14,7 @@ const seed =  (req, res) => {
 
 //GET Users
 const getUsers = (req, res) => {
-    User.findOne({name: req.params.name})
+    User.findOne({email: req.params.email})
     .then(foundUser => {
         res.json({foundUser: foundUser})
     })
@@ -41,7 +41,7 @@ const taskComments = (req, res) => {
 
 //Get user job list 
 const userJobs = (req, res) => {
-    Job.find({user: req.params.name})
+    Job.find({user: req.params.email})
     .then(jobsOfUser => {
         res.json({jobsOfUser: jobsOfUser})
     })
@@ -49,10 +49,10 @@ const userJobs = (req, res) => {
 
 //Check if a user is new, if not add them to our database
 const checkIfNew = (req, res) => {
-    User.find({name: req.params.name})
+    User.find({email: req.params.email})
     .then(user => {
         console.log(user)
-        if(user.name == req.params.name) {
+        if(user.email == req.params.email) {
             return res.status(400).json({ message: "User already exists!" }); 
         } User.create({
             name: req.params.name,
@@ -118,17 +118,17 @@ const postTask = (req, res) => {
         task: req.body.task,
         isComplete: false,
         comments: ['no comments yet'],
-        createdBy: req.params.name,
+        createdBy: req.params.email,
     })
     .then(createdTask => {
         console.log("new task", createdTask)
-        User.findOne({name: req.params.name})
+        User.findOne({email: req.params.email})
 .then(user => {
     console.log("found user", user)
     const currentTasks = user.tasks
     console.log(user)
     currentTasks.push(createdTask._id)
-    User.findOneAndUpdate({name: req.params.name}, {
+    User.findOneAndUpdate({email: req.params.email}, {
         tasks: currentTasks
     })
     .then(response => {
@@ -164,7 +164,7 @@ const updateTaskIntent = (req, res) => {
 //Put a comment on a task
 const postTaskComment = (req, res) => {
     Comment.create({
-        createdBy: req.body.createdBy,
+        createdBy: req.body.name,
         content: req.body.content,
         comments: ['no comments yet'],
         postID: req.params.postID
@@ -192,7 +192,7 @@ const postTaskComment = (req, res) => {
 //add jobs of concern to user profile
 const postJob = (req, res) => {
     Job.create({
-        user: req.params.name,
+        user: req.params.email,
         company: req.body.company,
         position: req.body.position,
         status: req.body.status,
