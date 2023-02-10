@@ -17,6 +17,12 @@ const validateAccessToken = auth({
 const checkRequiredPermissions = (requiredPermissions) => {
   return (req, res, next) => {
     const permissionCheck = claimCheck((payload) => {
+      
+      req.user = {  roles: payload['https://JobFinderMotivator.com/roles'],
+                    name: payload['https://JobFinderMotivator.com/name'],
+                    email: payload['https://JobFinderMotivator.com/email'],
+      }
+
       const permissions = payload.permissions || [];
 
       const hasPermissions = requiredPermissions.every((requiredPermission) =>
@@ -33,7 +39,6 @@ const checkRequiredPermissions = (requiredPermissions) => {
     permissionCheck(req, res, next);
   };
 };
-
 module.exports = {
   validateAccessToken,
   checkRequiredPermissions,

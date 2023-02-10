@@ -9,11 +9,24 @@ const ctrls = require('../controllers');
 
 router.post('/seed', 
     validateAccessToken,
-    checkRequiredPermissions([Permissions.AdminWrite]),
+    checkRequiredPermissions([]),
     ctrls.user.seed);
+
 // router.post('/register', ctrls.user.register);
 // router.post('/login', ctrls.user.login);
-router.get('/test', ctrls.user.test);
+router.get('/:name', ctrls.user.getUsers);
+router.get('/tasks/:name', ctrls.user.getTasks);
+router.get('/taskcomments/:id', ctrls.user.taskComments);
+router.get('/jobs/:name', ctrls.user.userJobs);
+router.post('/create/:name/:email', ctrls.user.checkIfNew);
+router.put('/postjob/:name', ctrls.user.postJob);
+router.put('/:name/createtask', ctrls.user.postTask);
+router.put('/task/:id/update', ctrls.user.updateTaskIntent);
+router.put('/comment/task/:postID', ctrls.user.postTaskComment);
+router.put('/:id/update', ctrls.user.updatePersonalInfo);
+router.delete('/:id/delete', ctrls.user.deleteUser);
+router.delete('/delete/task/:id', ctrls.user.deleteTask);
+router.delete('/delete/comment/:id', ctrls.user.deleteTaskComment);
 // router.get('/deck/:user', ctrls.user.getDeck);
 // router.put('/deck/add/:user/:card', ctrls.user.addCardToDeck);
 // router.put('/deck/rem/:user/:card', ctrls.user.removeCardFromDeck);
