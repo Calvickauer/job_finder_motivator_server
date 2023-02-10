@@ -5,10 +5,16 @@ const helmet = require("helmet");
 const nocache = require("nocache");
 const { messagesRouter } = require("./messages/messages.router");
 const routes = require('./routes');
+const mongoose = require("mongoose")
 const { errorHandler } = require("./middleware/error.middleware");
 const { notFoundHandler } = require("./middleware/not-found.middleware");
 
 dotenv.config();
+
+// Database Set Up
+const MONGO_CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING;
+mongoose.connect(MONGO_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
 
 if (!(process.env.PORT && process.env.CLIENT_ORIGIN_URL)) {
   throw new Error(
@@ -16,11 +22,14 @@ if (!(process.env.PORT && process.env.CLIENT_ORIGIN_URL)) {
   );
 }
 
+
 const PORT = parseInt(process.env.PORT, 10);
 const CLIENT_ORIGIN_URL = process.env.CLIENT_ORIGIN_URL;
 
 const app = express();
 const apiRouter = express.Router();
+
+
 
 app.use(express.json());
 app.set("json spaces", 2);
@@ -74,5 +83,7 @@ app.use(errorHandler);
 app.use(notFoundHandler);
 
 app.listen(PORT, () => {
+  
   console.log(`Listening on port ${PORT}`);
 });
+
