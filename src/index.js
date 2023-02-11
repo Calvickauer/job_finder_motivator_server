@@ -15,6 +15,9 @@ dotenv.config();
 const MONGO_CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING;
 mongoose.connect(MONGO_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
+db.on('error', (err)=> {console.error('ERROR! - ' + err.message)});
+db.on('connected', ()=>{console.info(`Connected to - ${db.host} : ${db.port}`)});
+db.on('disconnected', ()=>{console.info('disconnected from mongoDB')});
 
 if (!(process.env.PORT && process.env.CLIENT_ORIGIN_URL)) {
   throw new Error(
@@ -62,28 +65,38 @@ app.use(nocache());
 //   console.log({req});
 //   next();
 // });
+const whitelist = [`${CLIENT_ORIGIN_URL}`, 'https://localhost:3000', 'http://localhost:3000'];
+const corsOptions = {
+  credentials: true,
+  origin: (origin, callback) => {
+    // console.log(origin);
+    if ((whitelist.indexOf(origin) !== -1) || (!origin)) callback(null, true);
+    else callback(new Error('Not allowed by CORS'));
+  },
+};
 
-app.use(
-  cors({
-    origin: CLIENT_ORIGIN_URL,
-    methods: ["GET"],
-    allowedHeaders: ["Authorization", "Content-Type"],
-    maxAge: 86400,
-  })
-);
+app.use(cors(corsOptions));
+//   cors({
+//     origin: CLIENT_ORIGIN_URL,
+//     methods: ["GET"],
+//     allowedHeaders: ["Authorization", "Content-Type"],
+//     maxAge: 86400,
+//   })
+// );
 
+app.use(express.static('./public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", apiRouter);
 apiRouter.use("/messages", messagesRouter);
 apiRouter.use("/user", routes.user);
+apiRouter.use("/material", routes.material);
 
 app.use(errorHandler);
 app.use(notFoundHandler);
 
 app.listen(PORT, () => {
-  
-  console.log(`Listening on port ${PORT}`);
+  console.info(`Listening on port ${PORT}`);
 });
 
