@@ -9,7 +9,8 @@ const materialSchema = new mongoose.Schema({
     content: {type: String},
     likes: {type: Number},
     dislikes: {type: Number},
-    comments: [{type: String}],
+    comments: [{type: Schema.Types.ObjectId, ref:"comment"}],
+    owner: {type: Schema.Types.ObjectId, ref:"owner"},
 });
 
 const Material = mongoose.model('Material', materialSchema);
