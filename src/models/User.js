@@ -14,12 +14,11 @@ const userSchema = new mongoose.Schema({
         title: {type: String},
         url: {type: String}
     }],
-    jobs: 
-        [{
-            type: String
-        }],
+    jobs: [{type: String}],
     job_materials: [{type: Schema.Types.ObjectId, ref: 'Material'}],
     connections: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    messages_sent: [{type: Schema.Types.ObjectId, ref: 'DM_Sent'}],
+    messages_received: [{type: Schema.Types.ObjectId, ref: 'DM_Received'}],
 });
 
 const User = mongoose.model('User', userSchema);

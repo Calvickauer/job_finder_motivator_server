@@ -92,6 +92,7 @@ app.use("/api", apiRouter);
 apiRouter.use("/messages", messagesRouter);
 apiRouter.use("/user", routes.user);
 apiRouter.use("/material", routes.material);
+apiRouter.use("/message", routes.message);
 
 app.use(errorHandler);
 app.use(notFoundHandler);
