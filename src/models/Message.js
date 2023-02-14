@@ -2,17 +2,18 @@ const { Schema } = require("mongoose");
 
 const mongoose = require('mongoose');
 
-const materialSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema({
     //_id: automatically generated
     schema_v: {type: Number, default: 1},
-    name: {type: String, required: true},
+    subject: {type: String, required: true, default: "Message"},
     content: {type: String, required: true},
     likes: {type: Number},
     dislikes: {type: Number},
     comments: [{type: Schema.Types.ObjectId, ref:"comment"}],
     owner: {type: Schema.Types.ObjectId, ref:"owner"},
+    recipient: {type: Schema.Types.ObjectId, ref:"recipient"},
 });
 
-const Material = mongoose.model('Material', materialSchema);
+const Message = mongoose.model('Message', messageSchema);
 
-module.exports = Material;
+module.exports = Message;
