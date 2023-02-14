@@ -143,6 +143,11 @@ const destroyMaterial = async ( req, res ) => {
             return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own post"} });
 
         await db.Comment.deleteMany({ _id: { $in: post.comments}});
+        const idx = user.job_materials.indexOf(req.params.id);
+        if (idx != -1) {
+            user.job_materials.splice( idx, 1 );
+            user.save();
+        }
         await db.Material.findByIdAndDelete(req.params.id);
         return res.status(200).json({ message: 'SUCCESS: material deleted' });
     } catch(err) {
