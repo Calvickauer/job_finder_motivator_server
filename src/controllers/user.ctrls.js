@@ -22,7 +22,7 @@ const getUsers = (req, res) => {
 
 //Get Tasks
 const getTasks = (req, res) => {
-    Task.find({createdBy: req.params.name})
+    Task.find({createdBy: req.params.email})
     .then(userTasks => {
         res.json({userTasks: userTasks})
     })
@@ -115,9 +115,11 @@ const updatePersonalInfo = (req, res) => {
 //creates task and adds it to the user
 const postTask = (req, res) => {
     Task.create({
+        taskName: req.body.taskName,
         task: req.body.task,
         isComplete: false,
-        comments: ['no comments yet'],
+        comments: [],
+        importance: req.body.importance,
         createdBy: req.params.email,
     })
     .then(createdTask => {

@@ -67,9 +67,13 @@ app.use((req, res, next) => {
 app.use(nocache());
 
 
+
 const whitelist = [`${CLIENT_ORIGIN_URL}`, 'https://localhost:3000', 'http://localhost:3000'];
 const corsOptions = {
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Authorization", "Content-Type"],
+  maxAge: 86400,
   origin: (origin, callback) => {
     // console.log(origin);
     if ((whitelist.indexOf(origin) !== -1) || (!origin)) callback(null, true);
@@ -81,6 +85,7 @@ app.use(cors(corsOptions));
 
 
 app.use(express.static('./public'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
