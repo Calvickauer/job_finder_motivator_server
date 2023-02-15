@@ -90,7 +90,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", apiRouter);
-app.use("/example", exampleRouter);
+// app.use("/example", exampleRouter);
 apiRouter.use("/messages", messagesRouter);
 apiRouter.use("/user", routes.user);
 apiRouter.use("/material", routes.material);
