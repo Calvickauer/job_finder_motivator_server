@@ -61,10 +61,17 @@ app.use((req, res, next) => {
 });
 app.use(nocache());
 
-// app.use((req,res,next) => {
-//   console.log({req});
-//   next();
-// });
+app.use(
+  cors({
+    origin: CLIENT_ORIGIN_URL,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Authorization", "Content-Type"],
+    maxAge: 86400,
+  })
+);
+
+
+
 const whitelist = [`${CLIENT_ORIGIN_URL}`, 'https://localhost:3000', 'http://localhost:3000'];
 const corsOptions = {
   credentials: true,
@@ -76,15 +83,10 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-//   cors({
-//     origin: CLIENT_ORIGIN_URL,
-//     methods: ["GET"],
-//     allowedHeaders: ["Authorization", "Content-Type"],
-//     maxAge: 86400,
-//   })
-// );
+
 
 app.use(express.static('./public'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
