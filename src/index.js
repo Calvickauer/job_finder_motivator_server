@@ -66,11 +66,13 @@ app.use(nocache());
 app.use(
   cors({
     origin: CLIENT_ORIGIN_URL,
-    methods: ["GET"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Authorization", "Content-Type"],
     maxAge: 86400,
   })
 );
+
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
