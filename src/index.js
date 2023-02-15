@@ -3,13 +3,18 @@ const dotenv = require("dotenv");
 const express = require("express");
 const helmet = require("helmet");
 const nocache = require("nocache");
+const {
+  validateAccessToken,
+} = require("./middleware/auth0.middleware");
 const { messagesRouter } = require("./messages/messages.router");
+
 const routes = require('./routes');
 const mongoose = require("mongoose")
 const { errorHandler } = require("./middleware/error.middleware");
 const { notFoundHandler } = require("./middleware/not-found.middleware");
 
 dotenv.config();
+
 
 // Database Set Up
 const MONGO_CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING;
@@ -61,20 +66,14 @@ app.use((req, res, next) => {
 });
 app.use(nocache());
 
-app.use(
-  cors({
-    origin: CLIENT_ORIGIN_URL,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Authorization", "Content-Type"],
-    maxAge: 86400,
-  })
-);
-
 
 
 const whitelist = [`${CLIENT_ORIGIN_URL}`, 'https://localhost:3000', 'http://localhost:3000'];
 const corsOptions = {
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Authorization", "Content-Type"],
+  maxAge: 86400,
   origin: (origin, callback) => {
     // console.log(origin);
     if ((whitelist.indexOf(origin) !== -1) || (!origin)) callback(null, true);
@@ -91,10 +90,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", apiRouter);
+app.use("/example", exampleRouter);
 apiRouter.use("/messages", messagesRouter);
 apiRouter.use("/user", routes.user);
 apiRouter.use("/material", routes.material);
 apiRouter.use("/message", routes.message);
+
 
 app.use(errorHandler);
 app.use(notFoundHandler);
