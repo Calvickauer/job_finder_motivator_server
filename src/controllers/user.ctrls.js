@@ -12,6 +12,43 @@ const seed =  (req, res) => {
     return res.json({payload: req.user})
 }
 
+const makeUnique = (str) => {
+    return `${str}${Date.now()}`;
+}
+
+const login = async (req, res) => {
+    // console.log("here",{user: req.user});
+    try{
+        let user = await db.User.findOne({email: req.user.email});
+        if (user) {
+            return res.status(200).json({ data: {user}, status: {code: 200, message: "SUCCESS: returning user logged in"} });
+        } else {
+            user = await db.User.create({
+                name: req.user.name,
+                email: req.user.email,
+                display_name: makeUnique(req.user.name),
+                isSocialDash: true,
+                tasks: [],
+                external_links: [],
+                jobs: [],
+                job_materials: [],
+                connections: [],
+                messages_sent: [],
+                messages_received: [],
+            })
+            return res.status(201).json({ data: {user}, status: {code: 201, message: "SUCCESS: new user created"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+}
+
+const logout = (req, res) => {
+    //do nothing user should already be logged out through auth0
+    return res.status(200).json({ data: {}, status: {code: 200, message: "SUCCESS: user logged out"} });
+}
+
 //GET Users
 const getUsers = (req, res) => {
     User.findOne({email: req.params.email})
@@ -244,6 +281,8 @@ const test = (req, res) => {
 
 module.exports = {
     seed,
+    login,
+    logout,
     test,
     checkIfNew,
     postTask,

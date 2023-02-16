@@ -23,7 +23,7 @@ messagesRouter.get(
   validateAccessToken, 
   checkRequiredPermissions([]),
   (req, res) => {
-  console.log({user: req.user})
+  // console.log({user: req.user})
   const message = getProtectedMessage();
 
   res.status(200).json(message);
@@ -34,9 +34,9 @@ messagesRouter.get(
   validateAccessToken,
   checkRequiredPermissions([AdminMessagesPermissions.Read]),
   (req, res) => {
-    console.log("in admin message router")
+    // console.log("in admin message router")
     const message = getAdminMessage();
-    console.log({user: req.user})
+    // console.log({user: req.user})
     res.status(200).json(message);
   }
 );
