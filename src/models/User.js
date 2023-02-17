@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema({
     jobs: [{type: String}],
     job_materials: [{type: Schema.Types.ObjectId, ref: 'Material'}],
     connections: [{type: Schema.Types.ObjectId, ref: 'User'}],
-    messages_sent: [{type: Schema.Types.ObjectId, ref: 'DM_Sent'}],
-    messages_received: [{type: Schema.Types.ObjectId, ref: 'DM_Received'}],
+    messages_sent: [{type: Schema.Types.ObjectId, ref: 'Message'}],
+    messages_received: [{type: Schema.Types.ObjectId, ref: 'Message'}],
 });
 
 const User = mongoose.model('User', userSchema);

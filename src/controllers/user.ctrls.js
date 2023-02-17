@@ -2,7 +2,7 @@ const db = require('../models');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const User = require('../models/User')
-const Comment = require('../models/Comment')
+const Comment = require('../models/MaterialComment')
 const Job = require('../models/Job')
 const Task = require('../models/Task')
 
@@ -49,35 +49,83 @@ const logout = (req, res) => {
     return res.status(200).json({ data: {}, status: {code: 200, message: "SUCCESS: user logged out"} });
 }
 
-//GET Users
-const getUsers = (req, res) => {
-    User.findOne({email: req.params.email})
-    .then(foundUser => {
-        res.json({foundUser: foundUser})
-    })
+//GET Users return any user for reference
+const getUser = async (req, res) => {
+    try {
+        const user = await db.User.findOne({display_name: req.params.display_name});
+        if (user) {
+            return res.status(200).json({ data: {user}, status: {code: 200, message: "SUCCESS: found user"} });
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
+        }
+    } catch (err) {
+         //catch any errors
+         return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
 }
 
-//Get Tasks
-const getTasks = (req, res) => {
-    Task.find({createdBy: req.params.email})
-    .then(userTasks => {
-        res.json({userTasks: userTasks})
-    })
+//Get Tasks all tasks for current user
+const getTasks = async (req, res) => {
+    try {
+        const user = await db.User.findOne({email: req.user.email});
+        if (user) {
+            const tasks = await db.Task.find({owner: user._id}).populate("comments");
+            if (tasks) {
+                return res.status(200).json({ data: {tasks}, status: {code: 200, message: "SUCCESS: found tasks"} });
+            } else {
+                return res.status(404).json({ data: {}, status: {code: 404, message: "INFO: user has no tasks"} });
+            }
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
+        }
+    } catch (err) {
+         //catch any errors
+         return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
 }
 
-//Get task comments
-const taskComments = (req, res) => {
-    Task.findById(req.params.id)
-    .then(foundTask => {
-        Comment.find({postID: foundTask._id})
-        .then(foundComments => {
-            res.json({foundComments: foundComments})
-        })
-    })
+//Get single task with comments
+const getTask = async (req, res) => {
+    try {
+        const user = await db.User.findOne({email: req.user.email});
+        if (user) {
+            const task = await db.Task.findById(req.params.TaskId).populate("comments");
+            if (task && task.owner === user._id) {
+                return res.status(200).json({ data: {task}, status: {code: 200, message: "SUCCESS: found task"} });
+            } else if (task) {
+                return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: user does not match"} });
+            } else {
+                return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: task not found"} });
+            }
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
 }
 
-//Get user job list 
-const userJobs = (req, res) => {
+//Get user job list all jobs for logged in user
+const getJobs = async (req, res) => {
+    try {
+        const user = await db.User.findOne({email: req.user.email});
+        if (user) {
+            const jobs = await db.Job.find({owner: user._id}).populate("comments");
+            if (tasks) {
+                return res.status(200).json({ data: {tasks}, status: {code: 200, message: "SUCCESS: found tasks"} });
+            } else {
+                return res.status(404).json({ data: {}, status: {code: 404, message: "INFO: user has no tasks"} });
+            }
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
+        }
+    } catch (err) {
+         //catch any errors
+         return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+
+
     Job.find({user: req.params.email})
     .then(jobsOfUser => {
         res.json({jobsOfUser: jobsOfUser})
@@ -85,43 +133,41 @@ const userJobs = (req, res) => {
 }
 
 //Check if a user is new, if not add them to our database
-const checkIfNew = (req, res) => {
-    User.find({email: req.params.email})
-    .then(user => {
-        console.log(user)
-        if(user.email == req.params.email) {
-            return res.status(400).json({ message: "User already exists!" }); 
-        } User.create({
-            name: req.params.name,
-            email: req.params.email,
-            display_name: req.params.name,
-            isSocialDash: true,
-            tasks: [],
-            external_links: [],
-            jobs: [],
-            job_materials: [],
-            connections: []
-        })
-        .then(newUser => {
-            console.log('New user =>>', newUser);
-            res.json({newUser: newUser})
-        })
-        .catch(error => { 
-            console.log('error', error) 
-            res.json({ message: 'email already exists!' })
-        });
-    })
-    .catch(error => { 
-        console.log('error', error) 
-        res.json({ message: error })
-    })
-}
+// const checkIfNew = (req, res) => {
+//     User.find({email: req.params.email})
+//     .then(user => {
+//         console.log(user)
+//         if(user.email == req.params.email) {
+//             return res.status(400).json({ message: "User already exists!" }); 
+//         } User.create({
+//             name: req.params.name,
+//             email: req.params.email,
+//             display_name: req.params.name,
+//             isSocialDash: true,
+//             tasks: [],
+//             external_links: [],
+//             jobs: [],
+//             job_materials: [],
+//             connections: []
+//         })
+//         .then(newUser => {
+//             console.log('New user =>>', newUser);
+//             res.json({newUser: newUser})
+//         })
+//         .catch(error => { 
+//             console.log('error', error) 
+//             res.json({ message: 'email already exists!' })
+//         });
+//     })
+//     .catch(error => { 
+//         console.log('error', error) 
+//         res.json({ message: error })
+//     })
+// }
 
-//Update personal user info
+//Update personal user profile info return user
 const updatePersonalInfo = (req, res) => {
         User.findByIdAndUpdate(req.params.id, {
-            name: req.body.name,
-            email: req.body.email,
             display_name: req.body.name,
             isSocialDash: req.body.isSocialDash,
         })
@@ -135,17 +181,18 @@ const updatePersonalInfo = (req, res) => {
         });
     }
 
-    const deleteUser = (req, res) => {
-        User.findByIdAndDelete(req.params.id)
-        .then(deletedUser => {
-            console.log('Deleted user =>>', deletedUser);
-            res.json({deletedUser: deletedUser})
-        })
-        .catch(error => { 
-            console.log('error', error) 
-            res.json({ message: 'email already exists!' })
-        });
-    }
+// delete a user and all refs to it
+const deleteUser = (req, res) => {
+    User.findByIdAndDelete(req.params.id)
+    .then(deletedUser => {
+        console.log('Deleted user =>>', deletedUser);
+        res.json({deletedUser: deletedUser})
+    })
+    .catch(error => { 
+        console.log('error', error) 
+        res.json({ message: 'email already exists!' })
+    });
+}
 
 
 
@@ -200,7 +247,7 @@ const updateTaskIntent = (req, res) => {
         });    
     }
 
-//Put a comment on a task
+//create a comment on a task
 const postTaskComment = (req, res) => {
     Comment.create({
         createdBy: req.body.name,
@@ -284,7 +331,6 @@ module.exports = {
     login,
     logout,
     test,
-    checkIfNew,
     postTask,
     updateTaskIntent,
     postTaskComment,
@@ -293,8 +339,8 @@ module.exports = {
     updatePersonalInfo,
     deleteUser,
     postJob,
-    userJobs,
-    taskComments,
+    getJobs,
+    getTask,
     getTasks,
-    getUsers
+    getUser,
 };

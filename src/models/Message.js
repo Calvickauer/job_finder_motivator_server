@@ -10,8 +10,8 @@ const messageSchema = new mongoose.Schema({
     // likes: {type: Number},
     // dislikes: {type: Number},
     // comments: [{type: Schema.Types.ObjectId, ref:"comment"}],
-    owner: {type: Schema.Types.ObjectId, ref:"owner", required: true},
-    recipient: {type: Schema.Types.ObjectId, ref:"recipient", required: true},
+    owner: {type: Schema.Types.ObjectId, ref:"User", required: true},
+    recipient: {type: Schema.Types.ObjectId, ref:"User", required: true},
 });
 
 const Message = mongoose.model('Message', messageSchema);
