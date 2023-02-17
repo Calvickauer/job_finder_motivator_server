@@ -17,9 +17,9 @@ const makeUnique = (str) => {
 }
 
 const login = async (req, res) => {
-    // console.log("here",{user: req.user});
     try{
         let user = await db.User.findOne({email: req.user.email});
+        console.log("here",{user: req.user});
         if (user) {
             return res.status(200).json({ data: {user}, status: {code: 200, message: "SUCCESS: returning user logged in"} });
         } else {
@@ -166,6 +166,7 @@ const getJobs = async (req, res) => {
 // }
 
 //Update personal user profile info return user
+//USE THIS FOR INITIAL SIGN UP
 const updatePersonalInfo = (req, res) => {
         User.findByIdAndUpdate(req.params.id, {
             display_name: req.body.name,
