@@ -17,9 +17,9 @@ const makeUnique = (str) => {
 }
 
 const login = async (req, res) => {
-    // console.log("here",{user: req.user});
     try{
         let user = await db.User.findOne({email: req.user.email});
+        console.log("here",{user: req.user});
         if (user) {
             return res.status(200).json({ data: {user}, status: {code: 200, message: "SUCCESS: returning user logged in"} });
         } else {
