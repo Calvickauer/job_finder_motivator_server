@@ -19,6 +19,7 @@ router.put('/postjob/:name', ctrls.user.postJob);
 router.put('/:email/createtask', ctrls.user.postTask);
 router.put('/task/:id/update', ctrls.user.updateTaskIntent);
 router.put('/comment/task/:postID', ctrls.user.postTaskComment);
+//USE THIS FOR UPDATE/CREATE PROFILE
 router.put('/:id/update', ctrls.user.updatePersonalInfo);
 router.delete('/:id/delete', ctrls.user.deleteUser);
 router.delete('/delete/task/:id', ctrls.user.deleteTask);

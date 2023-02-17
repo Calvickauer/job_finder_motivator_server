@@ -118,6 +118,7 @@ const checkIfNew = (req, res) => {
 }
 
 //Update personal user info
+//USE THIS FOR INITIAL SIGN UP
 const updatePersonalInfo = (req, res) => {
         User.findByIdAndUpdate(req.params.id, {
             name: req.body.name,
