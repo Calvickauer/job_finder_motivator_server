@@ -9,17 +9,18 @@ const userSchema = new mongoose.Schema({
     name: {type: String, reqired: true},
     display_name: {type: String, required: true, unique: true},
     isSocialDash: {type: Boolean, default: false},
-    tasks: [{type: String}],
+    tasks: [{type: Schema.Types.ObjectId, ref: "Task"}],
     external_links: [{
+        idx: {type: Number},
         title: {type: String},
-        url: {type: String}
+        url: {type: String},
     }],
-    jobs: [{type: String}],
+    jobs: [{type: Schema.Types.ObjectId, ref: "Job"}],
     job_materials: [{type: Schema.Types.ObjectId, ref: 'Material'}],
     connections: [{type: Schema.Types.ObjectId, ref: 'User'}],
     messages_sent: [{type: Schema.Types.ObjectId, ref: 'Message'}],
     messages_received: [{type: Schema.Types.ObjectId, ref: 'Message'}],
-});
+}, {timestamps: true}); //adds .createdAt and .updatedAt and sets them automatically as needed
 
 const User = mongoose.model('User', userSchema);
 

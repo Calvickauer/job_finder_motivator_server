@@ -3,11 +3,12 @@ const { Schema } = require("mongoose");
 const mongoose = require('mongoose');
 
 const matCommentSchema = new mongoose.Schema({
+    schema_v: {type: Number, default: 1},
     owner: {type: Schema.Types.ObjectId, ref: "User"},
     content: {type: String},
     comments: [{type: Schema.Types.ObjectId, ref: "MaterialComment"}],
     materialID: {type: Schema.Types.ObjectId, ref: "Material"},
-},{timestamps: true});
+},{timestamps: true}); //adds .createdAt and .updatedAt and sets them automatically as needed
 
 const MaterialComment = mongoose.model('MaterialComment', matCommentSchema);
 

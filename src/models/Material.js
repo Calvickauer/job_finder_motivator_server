@@ -11,7 +11,7 @@ const materialSchema = new mongoose.Schema({
     dislikes: {type: Number},
     comments: [{type: Schema.Types.ObjectId, ref:"MaterialComment"}],
     owner: {type: Schema.Types.ObjectId, ref:"User", required: true},
-});
+},{timestamps: true}); //adds .createdAt and .updatedAt and sets them automatically as needed
 
 const Material = mongoose.model('Material', materialSchema);
 

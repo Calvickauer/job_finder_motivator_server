@@ -12,8 +12,8 @@ const jobSchema = new mongoose.Schema({
     status: {type: String},
     date_applied: {type: Date},
     date_response: {type: Date},
-    comments: [{type: Schema.Types.ObjectId, ref: "Comment"}]
-})
+    comments: [{type: Schema.Types.ObjectId, ref: "JobComment"}]
+},{timestamps: true}); //adds .createdAt and .updatedAt and sets them automatically as needed
 
 
 
