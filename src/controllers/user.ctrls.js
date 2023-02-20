@@ -1,3 +1,4 @@
+const { user } = require('.');
 const db = require('../models');
 
 const seed =  (req, res) => {
@@ -56,6 +57,8 @@ const getUser = async (req, res) => {
         let user = await db.User.findOne({display_name: req.params.display_name});
         if (user) {
             if (req.user.email === user.email) {
+                // if user is current user return populated user data otherwise return
+                // the unpopulated user data
                 user = await db.User.findOne({display_name: req.params.display_name})
                 .populate("tasks")
                 .populate("jobs")
@@ -302,6 +305,44 @@ const postTaskComment = async (req, res) => {
     }
 } 
 
+const showTaskComment = async ( req, res ) => {
+    try{
+        const comment = await db.TaskComment.findById(req.params.commentId);
+        if (comment){
+            return res.status(200).json({ data: {comment}, status: {code: 200, message: "SUCCESS: comment found"} });
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+}
+
+const updateTaskComment = async ( req, res ) => {
+    try {
+        const userId = await db.User.findOne({email: req.user.email})._id;
+        if (user) {
+            const comment = await db.TaskComment.findById(req.params.commentId);
+            if (comment && comment.owner === userId) {
+                comment.title = req.body.title ? req.body.title : comment.title;
+                comment.content = req.body.content ? req.body.content : comment.content;
+                comment.save();
+                return res.status(200).json({ data: {comment}, status: {code: 200, message: "SUCCESS: updated comment"} });
+            } else if (comment) {
+                return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: user can only update owned comments"} });
+            } else {
+                return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
+            }
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+};
+
 //Delete a task comment
 const deleteTaskComment = async (req, res) => {
     try {
@@ -495,6 +536,46 @@ const postJobComment = async (req, res) => {
     }
 } 
 
+//return one comment
+const showJobComment = async ( req, res ) => {
+    try{
+        const comment = await db.JobComment.findById(req.params.commentId);
+        if (comment){
+            return res.status(200).json({ data: {comment}, status: {code: 200, message: "SUCCESS: comment found"} });
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+}
+
+//update a comment
+const updateJobComment = async ( req, res ) => {
+    try {
+        const userId = await db.User.findOne({email: req.user.email})._id;
+        if (user) {
+            const comment = await db.JobComment.findById(req.params.commentId);
+            if (comment && comment.owner === userId) {
+                comment.title = req.body.title ? req.body.title : comment.title;
+                comment.content = req.body.content ? req.body.content : comment.content;
+                comment.save();
+                return res.status(200).json({ data: {comment}, status: {code: 200, message: "SUCCESS: updated comment"} });
+            } else if (comment) {
+                return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: user can only update owned comments"} });
+            } else {
+                return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
+            }
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+};
+
 //Delete a job comment
 const deleteJobComment = async (req, res) => {
     try {
@@ -540,6 +621,8 @@ module.exports = {
     updateTask,
     deleteTask,
     postTaskComment,
+    showTaskComment,
+    updateTaskComment,
     deleteTaskComment,
     // TODO break these out into separate file
     getJobs,
@@ -548,6 +631,8 @@ module.exports = {
     updateJob,
     deleteJob,
     postJobComment,
+    showJobComment,
+    updateJobComment,
     deleteJobComment,
 };
 
