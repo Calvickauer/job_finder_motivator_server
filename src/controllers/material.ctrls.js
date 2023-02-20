@@ -75,7 +75,7 @@ const createComment = async ( req, res ) => {
             owner: userId,
             content: req.body,
             comments: [],
-            materialID: post._id,
+            materialId: post._id,
         });
         post.comments.push(comment._id);
         post.save();
@@ -117,14 +117,14 @@ const destroyComment = async ( req, res ) => {
         if (!post) {
             return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
         }
-        const idx = post.comments.indexOf(req.params.commentId);
+        const idx = post.comments.indexOf(post.materialId);
         if (idx === -1) {
             return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
         }
-        const comment = await db.Comment.findByIdAndDelete(req.params.commentId);
+        const comment = await db.MaterialComment.findById(req.params.commentId);
         if (comment.owner != userId) {
             return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own comment"} });
-        }     
+        }
         await db.Comment.findByIdAndDelete(comment._id);
         post.comments.splice( idx, 1 );
         post.save();
@@ -142,14 +142,14 @@ const destroyMaterial = async ( req, res ) => {
         if (post.owner != user._id)
             return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own post"} });
 
-        await db.Comment.deleteMany({ _id: { $in: post.comments}});
+        await db.MaterialComment.deleteMany({ _id: { $in: post.comments}});
         const idx = user.job_materials.indexOf(req.params.id);
         if (idx != -1) {
             user.job_materials.splice( idx, 1 );
             user.save();
         }
         await db.Material.findByIdAndDelete(req.params.id);
-        return res.status(200).json({ message: 'SUCCESS: material deleted' });
+        return res.status(200).json({ data: {post}, status: {code: 200, message: "SUCCESS: material deleted"} });
     } catch(err) {
         //catch any errors
         return res.status(400).json({ error: err.message });
