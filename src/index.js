@@ -93,8 +93,10 @@ app.use("/api", apiRouter);
 // app.use("/example", exampleRouter);
 apiRouter.use("/messages", messagesRouter);
 apiRouter.use("/user", routes.user);
+apiRouter.use("/job", routes.job);
 apiRouter.use("/material", routes.material);
 apiRouter.use("/message", routes.message);
+apiRouter.use("/task", routes.task);
 
 
 app.use(errorHandler);

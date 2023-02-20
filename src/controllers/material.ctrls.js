@@ -49,86 +49,16 @@ const updateMaterial = async ( req, res ) => {
         const userId = await db.User.findOne({email: req.user.email})._id;
         const post = await db.Material.findById(req.params.materialId);
         if (!post)
-            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
+        return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
         
         if (post.owner != userId)
-            return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only update their own post"} });
-
+        return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only update their own post"} });
+        
         post.name = req.body.name;
         post.content = req.body.content;
         post.save();
         return res.status(200).json({ data: {post}, status: {code: 200, message: "SUCCESS: material updated"} });
-
-    } catch (err) {
-        //catch any errors
-        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
-    }
-};
-
-const createComment = async ( req, res ) => {
-    try {
-        const userId = await db.User.findOne({email: req.user.email})._id;
-        const post = await db.Material.findById(req.params.materialId);
-        if (!post)
-            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
-        const comment = db.Comment.create({
-            createdBy: userId,
-            content: req.body,
-            comments: [],
-            postID: post._id,
-        });
-        post.comments.push(comment._id);
-        post.save();
-        return res.status(201).json({ data: {post: post, comment: comment}, status: {code: 201, message: "SUCCESS: comment created"} });
-    } catch (err) {
-        //catch any errors
-        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
-    }
-};
-
-const updateComment = async ( req, res ) => {
-    try {
-        const userId = await db.User.findOne({email: req.user.email})._id;
-        const post = await db.Material.findById(req.params.materialId);
-        if (!post)
-            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
         
-        if (post.owner != userId)
-            return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only update their own post"} });
-
-        const idx = post.comments.indexOf(req.params.commentId);
-        if (idx === -1)
-            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
-
-        const comment = db.Comment.findById(req.params.commentId);
-        comment.content = req.body.content;
-        comment.save();
-        return res.status(200).json({ data: {comment}, status: {code: 200, message: "SUCCESS: comment updated"} });
-
-    } catch (err) {
-        //catch any errors
-        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
-    }
-};
-
-const destroyComment = async ( req, res ) => {
-    try {
-        const userId = await db.User.findOne({email: req.user.email})._id;
-        const post = await db.Material.findById(req.params.materialId);
-        if (!post)
-            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
-        
-        if (post.owner != userId)
-            return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own post"} });
-
-        const idx = post.comments.indexOf(req.params.commentId);
-        if (idx === -1)
-            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
-        
-        await db.Comment.findByIdAndDelete(req.params.commentId);
-        post.comments.splice( idx, 1 );
-        post.save();
-        return res.status(200).json({ data: {post}, status: {code: 200, message: "SUCCESS: comment deleted"} });
     } catch (err) {
         //catch any errors
         return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
@@ -142,27 +72,113 @@ const destroyMaterial = async ( req, res ) => {
         if (post.owner != user._id)
             return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own post"} });
 
-        await db.Comment.deleteMany({ _id: { $in: post.comments}});
+        await db.MaterialComment.deleteMany({ _id: { $in: post.comments}});
         const idx = user.job_materials.indexOf(req.params.id);
         if (idx != -1) {
             user.job_materials.splice( idx, 1 );
             user.save();
         }
         await db.Material.findByIdAndDelete(req.params.id);
-        return res.status(200).json({ message: 'SUCCESS: material deleted' });
+        return res.status(200).json({ data: {post}, status: {code: 200, message: "SUCCESS: material deleted"} });
     } catch(err) {
         //catch any errors
         return res.status(400).json({ error: err.message });
     }
 };
 
+const createComment = async ( req, res ) => {
+    try {
+        const userId = await db.User.findOne({email: req.user.email})._id;
+        const post = await db.Material.findById(req.params.materialId);
+        if (!post)
+        return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
+        const comment = db.MaterialComment.create({
+            owner: userId,
+            content: req.body,
+            comments: [],
+            materialId: post._id,
+        });
+        post.comments.push(comment._id);
+        post.save();
+        return res.status(201).json({ data: {post: post, comment: comment}, status: {code: 201, message: "SUCCESS: comment created"} });
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+};
+
+const showComment = async ( req, res ) => {
+    try{
+        const comment = await db.MaterialComment.findById(req.params.commentId);
+        if (comment){
+            return res.status(200).json({ data: {comment}, status: {code: 200, message: "SUCCESS: comment found"} });
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+}
+
+const updateComment = async ( req, res ) => {
+    try {
+        const userId = await db.User.findOne({email: req.user.email})._id;
+        if (user) {
+            const comment = await db.MaterialComment.findById(req.params.commentId);
+            if (comment && comment.owner === userId) {
+                comment.title = req.body.title ? req.body.title : comment.title;
+                comment.content = req.body.content ? req.body.content : comment.content;
+                comment.save();
+                return res.status(200).json({ data: {comment}, status: {code: 200, message: "SUCCESS: updated comment"} });
+            } else if (comment) {
+                return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: user can only update owned comments"} });
+            } else {
+                return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
+            }
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+};
+
+const destroyComment = async ( req, res ) => {
+    try {
+        const userId = await db.User.findOne({email: req.user.email})._id;
+        const post = await db.Material.findById(req.params.materialId);
+        if (!post) {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
+        }
+        const idx = post.comments.indexOf(post.materialId);
+        if (idx === -1) {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
+        }
+        const comment = await db.MaterialComment.findById(req.params.commentId);
+        if (comment.owner != userId) {
+            return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own comment"} });
+        }
+        await db.Comment.findByIdAndDelete(comment._id);
+        post.comments.splice( idx, 1 );
+        post.save();
+        return res.status(200).json({ data: {post}, status: {code: 200, message: "SUCCESS: comment deleted"} });
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+};
+
+
 module.exports = {
     create,
     index,
     show,
     updateMaterial,
+    destroyMaterial,
     createComment,
+    showComment,
     updateComment,
     destroyComment,
-    destroyMaterial,
 };
