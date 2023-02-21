@@ -126,7 +126,7 @@ const updateComment = async ( req, res ) => {
         const userId = await db.User.findOne({email: req.user.email})._id;
         if (user) {
             const comment = await db.MaterialComment.findById(req.params.commentId);
-            if (comment && comment.owner === userId) {
+            if (comment && comment.owner.toString() === userId.toString()) {
                 comment.title = req.body.title ? req.body.title : comment.title;
                 comment.content = req.body.content ? req.body.content : comment.content;
                 comment.save();
@@ -157,7 +157,7 @@ const destroyComment = async ( req, res ) => {
             return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
         }
         const comment = await db.MaterialComment.findById(req.params.commentId);
-        if (comment.owner != userId) {
+        if (comment.owner.toString() != userId.toString()) {
             return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own comment"} });
         }
         await db.Comment.findByIdAndDelete(comment._id);

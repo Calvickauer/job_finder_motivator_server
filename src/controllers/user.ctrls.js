@@ -55,7 +55,7 @@ const getUser = async (req, res) => {
     try {
         let user = await db.User.findOne({display_name: req.params.display_name});
         if (user) {
-            if (req.user.email === user.email) {
+            if (req.user.email.toString() === user.email.toString()) {
                 // if user is current user return populated user data otherwise return
                 // the unpopulated user data
                 user = await db.User.findOne({display_name: req.params.display_name})
@@ -89,7 +89,7 @@ const updateUserInfo = async (req, res) => {
         .populate("messages_received");
         if (user) {
             const checkName = await db.User.find({display_name: req.body.display_name});
-            if (checkName && user._id != checkName._id) {
+            if (checkName && user._id.toString() != checkName._id.toString()) {
                 return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: display_name already taken"} });
             } 
             user.display_name = req.body.display_name ? req.body.display_name : user.display_name;
