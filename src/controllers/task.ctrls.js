@@ -26,7 +26,7 @@ const getTask = async (req, res) => {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
             const task = await db.Task.findById(req.params.taskId).populate("comments");
-            if (task && task.owner === user._id) {
+            if (task && task.owner.toString() === user._id.toString()) {
                 return res.status(200).json({ data: {task}, status: {code: 200, message: "SUCCESS: found task"} });
             } else if (task) {
                 return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: user does not match"} });
@@ -78,7 +78,7 @@ const updateTask = async (req, res) => {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
             const task = await db.Task.findById(req.params.taskId);
-            if (task && task.owner === user._id) {
+            if (task && task.owner.toString() === user._id.toString()) {
                 task.task = req.body.task ? req.body.task : task.task;
                 task.description = req.body.description ? req.body.description : task.description;
                 task.isComplete = req.body.isComplete ? req.body.isComplete : task.isComplete;
@@ -106,17 +106,20 @@ const deleteTask = async (req, res) => {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
             const task = await db.Task.findById(req.params.taskId);
-            if (task && task.owner === user._id) {
-                await db.TaskComment.deleteMany({ _id: { $in: task.comments}});
-                const idx = user.tasks.indexOf(req.params.taskId);
-                if (idx != -1) {
-                    user.tasks.splice( idx, 1 );
-                    user.save();
+            if (task) {
+                if(task.owner.toString() === user._id.toString()) {
+                    // console.log({task: task,owner: task.owner, user: user._id});
+                    await db.TaskComment.deleteMany({ _id: { $in: task.comments}});
+                    const idx = user.tasks.indexOf(req.params.taskId);
+                    if (idx != -1) {
+                        user.tasks.splice( idx, 1 );
+                        user.save();
+                    }
+                    await db.Task.findByIdAndDelete(req.params.taskId);
+                    return res.status(200).json({ data: {}, status: {code: 200, message: "SUCCESS: task deleted"} });
+                } else {
+                    return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: user can only delete owned tasks"} });
                 }
-                await db.Task.findByIdAndDelete(req.params.taskId);
-                return res.status(200).json({ data: {}, status: {code: 200, message: "SUCCESS: task deleted"} });
-            } else if (task) {
-                return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: user can only delete owned tasks"} });
             } else {
                 return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: task not found"} });
             }
@@ -179,7 +182,7 @@ const updateTaskComment = async ( req, res ) => {
         const userId = await db.User.findOne({email: req.user.email})._id;
         if (user) {
             const comment = await db.TaskComment.findById(req.params.commentId);
-            if (comment && comment.owner === userId) {
+            if (comment && comment.owner.toString() === userId.toString()) {
                 comment.title = req.body.title ? req.body.title : comment.title;
                 comment.content = req.body.content ? req.body.content : comment.content;
                 comment.save();
@@ -204,7 +207,7 @@ const deleteTaskComment = async (req, res) => {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
             const comment = await db.TaskComment.findById(req.params.commentId);
-            if (comment && comment.owner === user._id) {
+            if (comment && comment.owner.toString() === user._id.toString()) {
                 const task = await db.Task.findById(comment.taskId);
                 if (task) {
                     const idx = task.comments.indexOf(comment._id);

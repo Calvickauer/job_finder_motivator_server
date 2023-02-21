@@ -78,7 +78,7 @@ const updateJob = async (req, res) => {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
             const job = await db.Job.findById(req.params.jobId);
-            if (job && job.owner === user._id) {
+            if (job && job.owner.toString() === user._id.toString()) {
                 job.company = req.body.company ? req.body.company : job.company;
                 job.position = req.body.position ? req.body.position : job.position;
                 job.description = req.body.description ? req.body.description : job.description;
@@ -108,7 +108,7 @@ const deleteJob = async (req, res) => {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
             const job = await db.Job.findById(req.params.jobId);
-            if (job && job.owner === user._id) {
+            if (job && job.owner.toString() === user._id.toString()) {
                 await db.JobComment.deleteMany({ _id: { $in: job.comments}});
                 const idx = user.jobs.indexOf(req.params.jobId);
                 if (idx != -1) {
@@ -183,7 +183,7 @@ const updateJobComment = async ( req, res ) => {
         const userId = await db.User.findOne({email: req.user.email})._id;
         if (user) {
             const comment = await db.JobComment.findById(req.params.commentId);
-            if (comment && comment.owner === userId) {
+            if (comment && comment.owner.toString() === userId.toString()) {
                 comment.title = req.body.title ? req.body.title : comment.title;
                 comment.content = req.body.content ? req.body.content : comment.content;
                 comment.save();
@@ -208,7 +208,7 @@ const deleteJobComment = async (req, res) => {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
             const comment = await db.JobComment.findById(req.params.commentId);
-            if (comment && comment.owner === user._id) {
+            if (comment && comment.owner.toString() === user._id.toString()) {
                 const job = await db.Job.findById(comment.jobId);
                 if (job) {
                     const idx = job.comments.indexOf(comment._id);

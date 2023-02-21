@@ -148,7 +148,7 @@ const destroyMessage = async ( req, res ) => {
     try {
         const user = await db.User.findOne({email: req.user.email});
         const mess = await db.Message.findById(req.params.id);
-        if (mess.owner != user._id && mess.recipient != user._id)
+        if (mess.owner.toString() != user._id.toString() && mess.recipient.toString() != user._id.toString())
             return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own messages"} });
 
         const owner = await db.User.findById(mess.owner);
