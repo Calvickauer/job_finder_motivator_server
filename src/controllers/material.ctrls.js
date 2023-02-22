@@ -1,18 +1,18 @@
 const db = require('../models');
 
 const create = async ( req, res ) => {
-    console.log({body: req.body});
     try {
-        const userId = await db.User.findOne({email: req.user.email})._id;
+        const user = await db.User.findOne({email: req.user.email});
+        // console.log({body: req.body}, {user});
         const post = await db.Material.create({
             name: req.body.name,
             content: req.body.content,
             likes: 0,
             dislikes: 0,
             comments: [],
-            owner: userId,
+            owner: user._id,
         });
-        console.log({post});
+        // console.log({post});
         return res.status(201).json({ data: {post}, status: {code: 201, message: "SUCCESS: material added"} });
     } catch (err) {
         //catch any errors
@@ -23,7 +23,7 @@ const create = async ( req, res ) => {
 const index = async ( req, res ) => {
     try {
         const posts = await db.Material.find({}).populate("comments");
-        console.log({posts});
+        // console.log({posts});
         return res.status(200).json({ data: {posts}, status: {code: 200, message: "SUCCESS: materials returned"} });
     } catch (err) {
         //catch any errors
@@ -46,12 +46,12 @@ const show = async ( req, res ) => {
 
 const updateMaterial = async ( req, res ) => {
     try {
-        const userId = await db.User.findOne({email: req.user.email})._id;
+        const user = await db.User.findOne({email: req.user.email});
         const post = await db.Material.findById(req.params.materialId);
         if (!post)
         return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
         
-        if (post.owner != userId)
+        if (post.owner.toString() != user._id.toString())
         return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only update their own post"} });
         
         post.name = req.body.name;
@@ -69,7 +69,7 @@ const destroyMaterial = async ( req, res ) => {
     try {
         const user = await db.User.findOne({email: req.user.email});
         const post = await db.Material.findById(req.params.id);
-        if (post.owner != user._id)
+        if (post.owner.toString() != user._id.toString())
             return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own post"} });
 
         await db.MaterialComment.deleteMany({ _id: { $in: post.comments}});
@@ -88,12 +88,12 @@ const destroyMaterial = async ( req, res ) => {
 
 const createComment = async ( req, res ) => {
     try {
-        const userId = await db.User.findOne({email: req.user.email})._id;
+        const user = await db.User.findOne({email: req.user.email});
         const post = await db.Material.findById(req.params.materialId);
         if (!post)
         return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
         const comment = db.MaterialComment.create({
-            owner: userId,
+            owner: user._id,
             content: req.body,
             comments: [],
             materialId: post._id,
@@ -123,10 +123,10 @@ const showComment = async ( req, res ) => {
 
 const updateComment = async ( req, res ) => {
     try {
-        const userId = await db.User.findOne({email: req.user.email})._id;
+        const user = await db.User.findOne({email: req.user.email});
         if (user) {
             const comment = await db.MaterialComment.findById(req.params.commentId);
-            if (comment && comment.owner.toString() === userId.toString()) {
+            if (comment && comment.owner.toString() === user._id.toString()) {
                 comment.title = req.body.title ? req.body.title : comment.title;
                 comment.content = req.body.content ? req.body.content : comment.content;
                 comment.save();
@@ -147,7 +147,7 @@ const updateComment = async ( req, res ) => {
 
 const destroyComment = async ( req, res ) => {
     try {
-        const userId = await db.User.findOne({email: req.user.email})._id;
+        const user = await db.User.findOne({email: req.user.email});
         const post = await db.Material.findById(req.params.materialId);
         if (!post) {
             return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
@@ -157,7 +157,7 @@ const destroyComment = async ( req, res ) => {
             return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: comment not found"} });
         }
         const comment = await db.MaterialComment.findById(req.params.commentId);
-        if (comment.owner.toString() != userId.toString()) {
+        if (comment.owner.toString() != user._id.toString()) {
             return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own comment"} });
         }
         await db.Comment.findByIdAndDelete(comment._id);
