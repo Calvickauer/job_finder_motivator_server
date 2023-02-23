@@ -33,7 +33,7 @@ const index = async ( req, res ) => {
 
 const show = async ( req, res ) => {
     try {
-        const post = await db.Material.findById(req.params.id).populate("comments");
+        const post = await db.Material.findById(req.params.materialId).populate("comments");
         if (!post)
             return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
         
@@ -68,18 +68,27 @@ const updateMaterial = async ( req, res ) => {
 const destroyMaterial = async ( req, res ) => {
     try {
         const user = await db.User.findOne({email: req.user.email});
-        const post = await db.Material.findById(req.params.id);
-        if (post.owner.toString() != user._id.toString())
-            return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own post"} });
-
-        await db.MaterialComment.deleteMany({ _id: { $in: post.comments}});
-        const idx = user.job_materials.indexOf(req.params.id);
-        if (idx != -1) {
-            user.job_materials.splice( idx, 1 );
-            user.save();
+        const post = await db.Material.findById(req.params.materialId);
+        if(user) {
+            if(post) {
+                if (post.owner.toString() === user._id.toString()){
+                    await db.MaterialComment.deleteMany({ _id: { $in: post.comments}});
+                    const idx = user.job_materials.indexOf(req.params.materialId);
+                    if (idx != -1) {
+                        user.job_materials.splice( idx, 1 );
+                        user.save();
+                    }
+                    await db.Material.findByIdAndDelete(req.params.materialId);
+                    return res.status(200).json({ data: {post}, status: {code: 200, message: "SUCCESS: material deleted"} });             
+                } else {
+                    return res.status(403).json({ data: {}, status: {code: 403, message: "FORBIDEN: user can only delete their own post"} });
+                }
+            } else {
+                return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: post not found"} });                
+            }
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
         }
-        await db.Material.findByIdAndDelete(req.params.id);
-        return res.status(200).json({ data: {post}, status: {code: 200, message: "SUCCESS: material deleted"} });
     } catch(err) {
         //catch any errors
         return res.status(400).json({ error: err.message });
