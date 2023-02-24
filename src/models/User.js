@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     name: {type: String, reqired: true},
     display_name: {type: String, required: true, unique: true},
+    interests: [{type: String}],
     isSocialDash: {type: Boolean, default: false},
     tasks: [{type: Schema.Types.ObjectId, ref: "Task"}],
     external_links: [{
