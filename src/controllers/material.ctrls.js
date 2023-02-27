@@ -73,7 +73,7 @@ const destroyMaterial = async ( req, res ) => {
             if(post) {
                 if (post.owner.toString() === user._id.toString()){
                     await db.MaterialComment.deleteMany({ _id: { $in: post.comments}});
-                    const idx = user.job_materials.indexOf(req.params.mated);
+                    const idx = user.job_materials.indexOf(req.params.materialId);
                     if (idx != -1) {
                         user.job_materials.splice( idx, 1 );
                         user.save();
@@ -98,17 +98,20 @@ const destroyMaterial = async ( req, res ) => {
 const createComment = async ( req, res ) => {
     try {
         const user = await db.User.findOne({email: req.user.email});
-        const post = await db.Material.findById(req.params.materialId);
+        let post = await db.Material.findById(req.params.materialId);
         if (!post)
         return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
-        const comment = db.MaterialComment.create({
+        const comment = await db.MaterialComment.create({
             owner: user._id,
-            content: req.body.content,
+            owner_name: user.display_name,
+            title: req.body.title ? req.body.title : null,
+            content: req.body.content ? req.body.content : null,
             comments: [],
             materialId: post._id,
         });
         post.comments.push(comment._id);
-        post.save();
+        await post.save();
+        post = await db.Material.findById(req.params.materialId).populate('comments');
         return res.status(201).json({ data: {post: post, comment: comment}, status: {code: 201, message: "SUCCESS: comment created"} });
     } catch (err) {
         //catch any errors
