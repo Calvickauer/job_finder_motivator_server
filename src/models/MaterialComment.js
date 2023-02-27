@@ -8,10 +8,13 @@ const matCommentSchema = new mongoose.Schema({
     owner_name: {type: String},
     title: {type: String},
     content: {type: String},
-    // comments: [{type: Schema.Types.ObjectId, ref: "MaterialComment"}],
+    likes: [{type: Schema.Types.ObjectId, ref:"User"}],
     materialId: {type: Schema.Types.ObjectId, ref: "Material"},
-},{timestamps: true}); //adds .createdAt and .updatedAt and sets them automatically as needed
+},{timestamps: true, toJSON: { virtuals: true }}); //adds .createdAt and .updatedAt and sets them automatically as needed
 
+matCommentSchema.virtual('num_likes').get(function() {
+    return this.likes.length;
+});
 const MaterialComment = mongoose.model('MaterialComment', matCommentSchema);
 
 module.exports = MaterialComment;
