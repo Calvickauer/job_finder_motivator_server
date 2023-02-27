@@ -13,10 +13,12 @@ router.post     ('/', validateAccessToken, checkRequiredPermissions([]), ctrls.m
 router.get      ('/', validateAccessToken, checkRequiredPermissions([]), ctrls.material.index);
 router.get      ('/:materialId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.show);
 router.put      ('/:materialId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.updateMaterial);
+router.put      ('/like/:materialId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.toggleLike),
 router.delete   ('/:materialId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.destroyMaterial);
 router.post     ('/comment/:materialId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.createComment);
 router.get      ('/comment/:commentId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.showComment);
 router.put      ('/comment/:commentId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.updateComment);
+router.put      ('/comment/like/:commentId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.toggleCommentLike),
 router.delete   ('/comment/:commentId', validateAccessToken, checkRequiredPermissions([]), ctrls.material.destroyComment);
 
 module.exports = router;
