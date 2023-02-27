@@ -73,7 +73,7 @@ const destroyMaterial = async ( req, res ) => {
             if(post) {
                 if (post.owner.toString() === user._id.toString()){
                     await db.MaterialComment.deleteMany({ _id: { $in: post.comments}});
-                    const idx = user.job_materials.indexOf(req.params.materialId);
+                    const idx = user.job_materials.indexOf(req.params.mated);
                     if (idx != -1) {
                         user.job_materials.splice( idx, 1 );
                         user.save();
@@ -103,7 +103,7 @@ const createComment = async ( req, res ) => {
         return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: material not found"} });
         const comment = db.MaterialComment.create({
             owner: user._id,
-            content: req.body,
+            content: req.body.content,
             comments: [],
             materialId: post._id,
         });
