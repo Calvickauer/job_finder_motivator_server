@@ -52,7 +52,7 @@ const postTask = async (req, res) => {
                 description: req.body.description ? req.body.description : null,
                 isComplete: req.body.isComplete ? req.body.isComplete : false,
                 importance: req.body.importance ? req.body.importance : null,
-                target_date: req.body.target_date ? req.body.target_date : null,
+                target_date: req.body.target_date ? req.body.target_date : Date.now(),
                 comments: [],
                 owner: user._id,
             });
