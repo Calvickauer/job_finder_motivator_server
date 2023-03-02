@@ -28,6 +28,7 @@ const login = async (req, res) => {
                 name: req.user.name,
                 email: req.user.email,
                 display_name: makeUnique(req.user.name),
+                picture: req.body.picture,
                 isSocialDash: true,
                 tasks: [],
                 external_links: [],
