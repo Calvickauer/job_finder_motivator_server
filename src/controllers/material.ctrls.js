@@ -145,6 +145,7 @@ const createComment = async ( req, res ) => {
         const comment = await db.MaterialComment.create({
             owner: user._id,
             owner_name: user.display_name,
+            owner_picture: user.picture,
             title: req.body.title ? req.body.title : null,
             content: req.body.content ? req.body.content : null,
             likes: [],

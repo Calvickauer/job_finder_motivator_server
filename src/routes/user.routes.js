@@ -9,7 +9,7 @@ const ctrls = require('../controllers');
 
 router.post     ('/seed', validateAccessToken, checkRequiredPermissions([]), ctrls.user.seed);
 //user
-router.get      ('/login', validateAccessToken, checkRequiredPermissions([]), ctrls.user.login);
+router.post      ('/login', validateAccessToken, checkRequiredPermissions([]), ctrls.user.login);
 router.get      ('/logout', ctrls.user.logout);
 router.get      ('/:display_name', validateAccessToken, checkRequiredPermissions([]), ctrls.user.getUser);
  //USE THIS FOR UPDATE/CREATE PROFILE
