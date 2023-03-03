@@ -102,6 +102,30 @@ const updateJob = async (req, res) => {
     }
 }
 
+//patch route to change status on a job
+const updateStatus = async (req,res) => {
+    try {
+        const user = await db.User.findOne({email: req.user.email});
+        if (user) {
+            const job = await db.Job.findById(req.params.jobId);
+            if (job && job.owner.toString() === user._id.toString()) {
+                job.status = req.body.status;
+                await job.save();
+                return res.status(200).json({ data: {job}, status: {code: 200, message: "SUCCESS: updated job status"} });
+            } else if (job) {
+                return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: user can only update owned jobs"} });
+            } else{
+                return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: job not found"} });
+            }
+        } else {
+            return res.status(404).json({ data: {}, status: {code: 404, message: "ERROR: user not found"} });
+        }
+    } catch (err) {
+        //catch any errors
+        return res.status(400).json({ data: {}, status: {code: 400, message: err.message} });
+    }
+}
+
 //Delete a job
 const deleteJob = async (req, res) => {
     try {
@@ -240,6 +264,7 @@ module.exports = {
     getJob,
     postJob,
     updateJob,
+    updateStatus,
     deleteJob,
     postJobComment,
     showJobComment,

@@ -12,6 +12,7 @@ router.get      ('/', validateAccessToken, checkRequiredPermissions([]), ctrls.j
 router.post     ('/', validateAccessToken, checkRequiredPermissions([]), ctrls.job.postJob);
 router.get      ('/:jobId', validateAccessToken, checkRequiredPermissions([]), ctrls.job.getJob);
 router.put      ('/:jobId', validateAccessToken, checkRequiredPermissions([]), ctrls.job.updateJob);
+router.patch    ('/:jobId', validateAccessToken, checkRequiredPermissions([]), ctrls.job.updateStatus);
 router.delete   ('/:jobId', validateAccessToken, checkRequiredPermissions([]), ctrls.job.deleteJob);
 router.post     ('/comment/:jobId', validateAccessToken, checkRequiredPermissions([]), ctrls.job.postJobComment);
 router.get      ('/comment/:commentId', validateAccessToken, checkRequiredPermissions([]), ctrls.job.showJobComment);
