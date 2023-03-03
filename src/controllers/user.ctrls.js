@@ -81,7 +81,6 @@ const getUser = async (req, res) => {
 //USE THIS FOR INITIAL SIGN UP
 const updateUserInfo = async (req, res) => {
     try {
-        console.log('Hey hey hey!')
         const user = await db.User.findOne({email: req.user.email})
         .populate("tasks")
         .populate("jobs")
