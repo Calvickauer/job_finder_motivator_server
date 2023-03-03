@@ -81,6 +81,7 @@ const getUser = async (req, res) => {
 //USE THIS FOR INITIAL SIGN UP
 const updateUserInfo = async (req, res) => {
     try {
+        console.log('Hey hey hey!')
         const user = await db.User.findOne({email: req.user.email})
         .populate("tasks")
         .populate("jobs")
@@ -89,10 +90,12 @@ const updateUserInfo = async (req, res) => {
         .populate("messages_sent")
         .populate("messages_received");
         if (user) {
-            const checkName = await db.User.find({display_name: req.body.display_name});
+            const checkName = await db.User.findOne({display_name: req.body.display_name});
+            // console.log({checkName}, {user});
             if (checkName && user._id.toString() != checkName._id.toString()) {
                 return res.status(403).json({ data: {}, status: {code: 403, message: "ERROR: display_name already taken"} });
             } 
+            // console.log(checkName);
             user.display_name = req.body.display_name ? req.body.display_name : user.display_name;
             user.isSocialDash = req.body.isSocialDash ? req.body.isSocialDash : user.isSocialDash;
             user.save();
