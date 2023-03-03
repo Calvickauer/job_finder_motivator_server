@@ -137,7 +137,7 @@ const postTaskComment = async (req, res) => {
     try {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
-            const task = await db.Task.findById(req.params.taskId);
+            let task = await db.Task.findById(req.params.taskId);
             if (task) {
                 const taskComment = await db.TaskComment.create({
                     owner: user._id,
@@ -147,7 +147,9 @@ const postTaskComment = async (req, res) => {
                 });
                 if (taskComment) {
                     task.comments.push(taskComment._id);
-                    return res.status(201).json({ data: {taskComment}, status: {code: 201, message: "SUCCESS: created comment"} });
+                    await task.save();
+                    task = await db.Task.findById(req.params.taskId).populate('comments');
+                    return res.status(201).json({ data: {task: task, comment: taskComment}, status: {code: 201, message: "SUCCESS: created comment"} });
                 } else {
                     return res.status(400).json({ data: {}, status: {code: 400, message: "ERROR: failed to create comment"} });
                 }

@@ -136,17 +136,19 @@ const postJobComment = async (req, res) => {
     try {
         const user = await db.User.findOne({email: req.user.email});
         if (user) {
-            const job = await db.Job.findById(req.params.jobId);
+            let job = await db.Job.findById(req.params.jobId);
             if (job) {
                 const jobComment = await db.JobComment.create({
                     owner: user._id,
                     title: req.body.title ? req.body.title : null,
                     content: req.body.content ? req.body.content : null,
-                    taskId: job._id,
+                    jobId: job._id,
                 });
                 if (jobComment) {
                     job.comments.push(jobComment._id);
-                    return res.status(201).json({ data: {jobComment}, status: {code: 201, message: "SUCCESS: created comment"} });
+                    await job.save();
+                    job = await db.Job.findById(req.params.jobId).populate('comments');
+                    return res.status(201).json({ data: {job: job, comment: jobComment}, status: {code: 201, message: "SUCCESS: created comment"} });
                 } else {
                     return res.status(400).json({ data: {}, status: {code: 400, message: "ERROR: failed to create comment"} });
                 }
