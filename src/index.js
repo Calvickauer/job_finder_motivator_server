@@ -71,7 +71,7 @@ app.use(nocache());
 const whitelist = [`${CLIENT_ORIGIN_URL}`, 'https://localhost:3000', 'http://localhost:3000'];
 const corsOptions = {
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Authorization", "Content-Type"],
   maxAge: 86400,
   origin: (origin, callback) => {
